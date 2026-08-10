@@ -152,12 +152,13 @@ has nvim || install_fd
 add_to_path() {
     local path_line='export PATH="$HOME/.local/bin:$PATH"'
 
-    for rc in "$HOME/.zshrc" "$HOME/.bashrc"; do
-        if [ -f "$rc" ]; then
-            grep -qxF "$path_line" "$rc" || echo "$path_line" >> "$rc"
-        fi
-    done
+    if [ -f "$HOME/.bashrc" ]; then
+	    grep -qxF "$path_line" "$HOME/.bashrc" || echo "$path_line" >> "$HOME/.bashrc"
+    fi
 
+    if [ -f "$HOME/.zshrc" ]; then
+	    grep -qxF "$path_line" "$HOME/.zshrc" || echo "$path_line" >> "$HOME/.zshrc"
+    fi
     export PATH="$HOME/.local/bin:$PATH"
 }
 add_to_path
