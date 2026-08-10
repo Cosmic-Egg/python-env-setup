@@ -1,13 +1,25 @@
+```bash
 #!/usr/bin/env bash
 set -euo pipefail
 
+# ------------------------------------------------------------
+# Directories
+# ------------------------------------------------------------
+
 BIN_DIR="$HOME/.local/bin"
-APP_DIR="$HOME/.local/share"
+OPT_DIR="$HOME/.local/opt"
 TMP_DIR="$(mktemp -d)"
 
 trap 'rm -rf "$TMP_DIR"' EXIT
 
-mkdir -p "$BIN_DIR" "$APP_DIR"
+mkdir -p "$BIN_DIR" "$OPT_DIR"
+
+# Make locally installed binaries available to this script.
+export PATH="$BIN_DIR:$PATH"
+
+# ------------------------------------------------------------
+# Architecture
+# ------------------------------------------------------------
 
 ARCH="$(uname -m)"
 
@@ -15,15 +27,15 @@ case "$ARCH" in
     x86_64)
         NVIM_ARCH="x86_64"
         RG_ARCH="x86_64-unknown-linux-musl"
-        FD_ARCH="x86_64-unknown-linux-gnu"
-        TS_ARCH="x64"
+        FD_ARCH="x86_64-unknown-linux-musl"
         ;;
+
     aarch64|arm64)
         NVIM_ARCH="arm64"
-        RG_ARCH="aarch64-unknown-linux-musl"
-        FD_ARCH="aarch64-unknown-linux-gnu"
-        TS_ARCH="arm64"
+        RG_ARCH="aarch64-unknown-linux-gnu"
+        FD_ARCH="aarch64-unknown-linux-musl"
         ;;
+
     *)
         echo "Unsupported architecture: $ARCH"
         exit 1
@@ -33,6 +45,14 @@ esac
 echo "Detected architecture: $ARCH"
 echo
 
+# ------------------------------------------------------------
+# Helpers
+# ------------------------------------------------------------
+
+has() {
+    command -v "$1" >/dev/null 2>&1
+}
+
 latest_tag() {
     curl -fsSLI \
         -o /dev/null \
@@ -41,31 +61,50 @@ latest_tag() {
         sed 's#.*/##'
 }
 
+add_to_path() {
+    local path_line='export PATH="$HOME/.local/bin:$PATH"'
+
+    for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
+        if [ -f "$rc" ]; then
+            if ! grep -qxF "$path_line" "$rc"; then
+                echo >> "$rc"
+                echo "$path_line" >> "$rc"
+                echo "Added ~/.local/bin to $rc"
+            fi
+        fi
+    done
+
+    export PATH="$BIN_DIR:$PATH"
+}
+
+# ------------------------------------------------------------
+# Neovim
+# ------------------------------------------------------------
+
 install_neovim() {
     echo "==> Installing Neovim"
 
-    case "$ARCH" in
-        x86_64)
-            NVIM_COMPAT_ARCH="x86_64"
-            ;;
-        aarch64|arm64)
-            NVIM_COMPAT_ARCH="arm64"
-            ;;
-    esac
+    local install_dir="$OPT_DIR/nvim"
 
     curl -fsSL \
-        "https://github.com/neovim/neovim-releases/releases/latest/download/nvim-linux-${NVIM_COMPAT_ARCH}.tar.gz" \
+        "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-${NVIM_ARCH}.tar.gz" \
         -o "$TMP_DIR/nvim.tar.gz"
 
-    rm -rf "$APP_DIR/nvim"
-    mkdir -p "$APP_DIR/nvim"
+    rm -rf "$install_dir"
+    mkdir -p "$install_dir"
 
     tar -xzf "$TMP_DIR/nvim.tar.gz" \
         --strip-components=1 \
-        -C "$APP_DIR/nvim"
+        -C "$install_dir"
 
-    ln -sf "$APP_DIR/nvim/bin/nvim" "$BIN_DIR/nvim"
+    ln -sfn "$install_dir/bin/nvim" "$BIN_DIR/nvim"
+
+    echo "    Installed."
 }
+
+# ------------------------------------------------------------
+# ripgrep
+# ------------------------------------------------------------
 
 install_ripgrep() {
     echo "==> Installing ripgrep"
@@ -78,23 +117,32 @@ install_ripgrep() {
 
     echo "    Version: $version"
 
-    mkdir -p "$TMP_DIR/rg"
-
     curl -fsSL \
         "https://github.com/BurntSushi/ripgrep/releases/download/${tag}/ripgrep-${version}-${RG_ARCH}.tar.gz" \
         -o "$TMP_DIR/rg.tar.gz"
 
+    mkdir -p "$TMP_DIR/rg"
+
     tar -xzf "$TMP_DIR/rg.tar.gz" \
         -C "$TMP_DIR/rg"
 
-    find "$TMP_DIR/rg" \
-        -type f \
-        -name rg \
-        -exec cp {} "$BIN_DIR/rg" \;
+    local rg_binary
+    rg_binary="$(find "$TMP_DIR/rg" -type f -name rg -print -quit)"
 
+    if [ -z "$rg_binary" ]; then
+        echo "ERROR: rg binary was not found in downloaded archive."
+        exit 1
+    fi
+
+    cp "$rg_binary" "$BIN_DIR/rg"
     chmod +x "$BIN_DIR/rg"
+
+    echo "    Installed."
 }
 
+# ------------------------------------------------------------
+# fd
+# ------------------------------------------------------------
 
 install_fd() {
     echo "==> Installing fd"
@@ -108,7 +156,7 @@ install_fd() {
     echo "    Version: $version"
 
     curl -fsSL \
-        "https://github.com/sharkdp/fd/releases/download/${tag}/fd-v${version}-x86_64-unknown-linux-musl.tar.gz" \
+        "https://github.com/sharkdp/fd/releases/download/${tag}/fd-v${version}-${FD_ARCH}.tar.gz" \
         -o "$TMP_DIR/fd.tar.gz"
 
     mkdir -p "$TMP_DIR/fd"
@@ -116,50 +164,81 @@ install_fd() {
     tar -xzf "$TMP_DIR/fd.tar.gz" \
         -C "$TMP_DIR/fd"
 
-    find "$TMP_DIR/fd" \
-        -type f \
-        -name fd \
-        -exec cp {} "$BIN_DIR/fd" \;
+    local fd_binary
+    fd_binary="$(find "$TMP_DIR/fd" -type f -name fd -print -quit)"
 
+    if [ -z "$fd_binary" ]; then
+        echo "ERROR: fd binary was not found in downloaded archive."
+        exit 1
+    fi
+
+    cp "$fd_binary" "$BIN_DIR/fd"
     chmod +x "$BIN_DIR/fd"
+
+    echo "    Installed."
 }
 
+# ------------------------------------------------------------
+# Install
+# ------------------------------------------------------------
 
-has() {
-    command -v "$1" >/dev/null 2>&1
-}
+if has nvim; then
+    echo "==> Neovim already installed"
+else
+    install_neovim
+fi
 
-has nvim || install_neovim
-has nvim || install_ripgrep
-has nvim || install_fd
+if has rg; then
+    echo "==> ripgrep already installed"
+else
+    install_ripgrep
+fi
 
-add_to_path() {
-    local path_line='export PATH="$HOME/.local/bin:$PATH"'
+if has fd; then
+    echo "==> fd already installed"
+else
+    install_fd
+fi
 
-    if [ -f "$HOME/.bashrc" ]; then
-	    grep -qxF "$path_line" "$HOME/.bashrc" || echo "$path_line" >> "$HOME/.bashrc"
-    fi
+# ------------------------------------------------------------
+# PATH
+# ------------------------------------------------------------
 
-    if [ -f "$HOME/.zshrc" ]; then
-	    grep -qxF "$path_line" "$HOME/.zshrc" || echo "$path_line" >> "$HOME/.zshrc"
-    fi
-    export PATH="$HOME/.local/bin:$PATH"
-}
 add_to_path
-export PATH="$BIN_DIR:$PATH"
+
+# ------------------------------------------------------------
+# Verification
+# ------------------------------------------------------------
 
 echo
 echo "========================================"
-echo "Installed successfully"
+echo "Installation complete"
 echo "========================================"
 echo
 
-nvim --version | head -n 1
-rg --version | head -n 1
-fd --version
-# tree-sitter --version
+if [ -x "$BIN_DIR/nvim" ]; then
+    "$BIN_DIR/nvim" --version | head -n 1
+else
+    nvim --version | head -n 1
+fi
 
-# echo
-# echo 'Add this to ~/.zshrc if needed:'
-# echo
-# echo 'export PATH="$HOME/.local/bin:$PATH"'
+if [ -x "$BIN_DIR/rg" ]; then
+    "$BIN_DIR/rg" --version | head -n 1
+else
+    rg --version | head -n 1
+fi
+
+if [ -x "$BIN_DIR/fd" ]; then
+    "$BIN_DIR/fd" --version
+else
+    fd --version
+fi
+
+echo
+echo "Installed binaries are available from:"
+echo "  $BIN_DIR"
+echo
+echo "If this was your first install, open a new shell or run:"
+echo
+echo '  source ~/.bashrc'
+```
