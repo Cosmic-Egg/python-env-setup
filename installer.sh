@@ -78,11 +78,11 @@ install_ripgrep() {
 
     echo "    Version: $version"
 
-    curl -fsSL \
-        "https://github.com/BurntSushi/ripgrep/releases/download/${tag}/ripgrep-${version}-x86_64-unknown-linux-musl.tar.gz" \
-        -o "$TMP_DIR/rg.tar.gz"
-
     mkdir -p "$TMP_DIR/rg"
+
+    curl -fsSL \
+        "https://github.com/BurntSushi/ripgrep/releases/download/${tag}/ripgrep-${version}-${RG_ARCH}.tar.gz" \
+        -o "$TMP_DIR/rg.tar.gz"
 
     tar -xzf "$TMP_DIR/rg.tar.gz" \
         -C "$TMP_DIR/rg"
