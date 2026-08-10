@@ -141,11 +141,26 @@ install_tree_sitter() {
     chmod +x "$BIN_DIR/tree-sitter"
 }
 
-install_neovim
-install_ripgrep
-install_fd
-# install_tree_sitter
+has() {
+    command -v "$1" >/dev/null 2>&1
+}
 
+has nvim || install_neovim
+has nvim || install_ripgrep
+has nvim || install_fd
+# install_tree_sitter
+add_to_path() {
+    local path_line='export PATH="$HOME/.local/bin:$PATH"'
+
+    for rc in "$HOME/.zshrc" "$HOME/.bashrc"; do
+        if [ -f "$rc" ]; then
+            grep -qxF "$path_line" "$rc" || echo "$path_line" >> "$rc"
+        fi
+    done
+
+    export PATH="$HOME/.local/bin:$PATH"
+}
+add_to_path
 export PATH="$BIN_DIR:$PATH"
 
 echo
@@ -157,9 +172,9 @@ echo
 nvim --version | head -n 1
 rg --version | head -n 1
 fd --version
-tree-sitter --version
+# tree-sitter --version
 
-echo
-echo 'Add this to ~/.zshrc if needed:'
-echo
-echo 'export PATH="$HOME/.local/bin:$PATH"'
+# echo
+# echo 'Add this to ~/.zshrc if needed:'
+# echo
+# echo 'export PATH="$HOME/.local/bin:$PATH"'
