@@ -1,4 +1,3 @@
-```bash
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -19,14 +18,12 @@ case "$ARCH" in
         FD_ARCH="x86_64-unknown-linux-gnu"
         TS_ARCH="x64"
         ;;
-
     aarch64|arm64)
         NVIM_ARCH="arm64"
         RG_ARCH="aarch64-unknown-linux-musl"
         FD_ARCH="aarch64-unknown-linux-gnu"
         TS_ARCH="arm64"
         ;;
-
     *)
         echo "Unsupported architecture: $ARCH"
         exit 1
@@ -36,120 +33,111 @@ esac
 echo "Detected architecture: $ARCH"
 echo
 
-# ------------------------------------------------------------
-# Helper: get latest GitHub release tag
-# ------------------------------------------------------------
-
 latest_tag() {
     curl -fsSLI \
         -o /dev/null \
         -w '%{url_effective}' \
         "https://github.com/$1/releases/latest" |
-    sed 's#.*/##'
+        sed 's#.*/##'
 }
 
-# ------------------------------------------------------------
-# Neovim
-# ------------------------------------------------------------
+install_neovim() {
+    echo "==> Installing Neovim"
 
-echo "==> Installing Neovim"
+    curl -fsSL \
+        "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-${NVIM_ARCH}.tar.gz" \
+        -o "$TMP_DIR/nvim.tar.gz"
 
-curl -fsSL \
-    "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-${NVIM_ARCH}.tar.gz" \
-    -o "$TMP_DIR/nvim.tar.gz"
+    rm -rf "$APP_DIR/nvim"
+    mkdir -p "$APP_DIR/nvim"
 
-rm -rf "$APP_DIR/nvim"
-mkdir -p "$APP_DIR/nvim"
+    tar -xzf "$TMP_DIR/nvim.tar.gz" \
+        --strip-components=1 \
+        -C "$APP_DIR/nvim"
 
-tar -xzf "$TMP_DIR/nvim.tar.gz" \
-    --strip-components=1 \
-    -C "$APP_DIR/nvim"
+    ln -sf "$APP_DIR/nvim/bin/nvim" "$BIN_DIR/nvim"
+}
 
-ln -sf "$APP_DIR/nvim/bin/nvim" "$BIN_DIR/nvim"
+install_ripgrep() {
+    echo "==> Installing ripgrep"
 
-# ------------------------------------------------------------
-# ripgrep
-# ------------------------------------------------------------
+    local tag
+    local version
 
-echo "==> Installing ripgrep"
+    tag="$(latest_tag BurntSushi/ripgrep)"
+    version="${tag#v}"
 
-RG_TAG="$(latest_tag BurntSushi/ripgrep)"
-RG_VERSION="${RG_TAG#v}"
+    echo "    Version: $version"
 
-echo "    Latest version: $RG_VERSION"
+    curl -fsSL \
+        "https://github.com/BurntSushi/ripgrep/releases/download/${tag}/ripgrep-${version}-${RG_ARCH}.tar.gz" \
+        -o "$TMP_DIR/rg.tar.gz"
 
-curl -fsSL \
-    "https://github.com/BurntSushi/ripgrep/releases/download/${RG_TAG}/ripgrep-${RG_VERSION}-${RG_ARCH}.tar.gz" \
-    -o "$TMP_DIR/rg.tar.gz"
+    mkdir -p "$TMP_DIR/rg"
 
-mkdir -p "$TMP_DIR/rg"
+    tar -xzf "$TMP_DIR/rg.tar.gz" \
+        -C "$TMP_DIR/rg"
 
-tar -xzf "$TMP_DIR/rg.tar.gz" \
-    -C "$TMP_DIR/rg"
+    cp \
+        "$TMP_DIR/rg/ripgrep-${version}-${RG_ARCH}/rg" \
+        "$BIN_DIR/rg"
 
-cp \
-    "$TMP_DIR/rg/ripgrep-${RG_VERSION}-${RG_ARCH}/rg" \
-    "$BIN_DIR/rg"
+    chmod +x "$BIN_DIR/rg"
+}
 
-chmod +x "$BIN_DIR/rg"
+install_fd() {
+    echo "==> Installing fd"
 
-# ------------------------------------------------------------
-# fd
-# ------------------------------------------------------------
+    local tag
+    local version
 
-echo "==> Installing fd"
+    tag="$(latest_tag sharkdp/fd)"
+    version="${tag#v}"
 
-FD_TAG="$(latest_tag sharkdp/fd)"
-FD_VERSION="${FD_TAG#v}"
+    echo "    Version: $version"
 
-echo "    Latest version: $FD_VERSION"
+    curl -fsSL \
+        "https://github.com/sharkdp/fd/releases/download/${tag}/fd-v${version}-${FD_ARCH}.tar.gz" \
+        -o "$TMP_DIR/fd.tar.gz"
 
-curl -fsSL \
-    "https://github.com/sharkdp/fd/releases/download/${FD_TAG}/fd-v${FD_VERSION}-${FD_ARCH}.tar.gz" \
-    -o "$TMP_DIR/fd.tar.gz"
+    mkdir -p "$TMP_DIR/fd"
 
-mkdir -p "$TMP_DIR/fd"
+    tar -xzf "$TMP_DIR/fd.tar.gz" \
+        -C "$TMP_DIR/fd"
 
-tar -xzf "$TMP_DIR/fd.tar.gz" \
-    -C "$TMP_DIR/fd"
+    cp \
+        "$TMP_DIR/fd/fd-v${version}-${FD_ARCH}/fd" \
+        "$BIN_DIR/fd"
 
-cp \
-    "$TMP_DIR/fd/fd-v${FD_VERSION}-${FD_ARCH}/fd" \
-    "$BIN_DIR/fd"
+    chmod +x "$BIN_DIR/fd"
+}
 
-chmod +x "$BIN_DIR/fd"
+install_tree_sitter() {
+    echo "==> Installing Tree-sitter CLI"
 
-# ------------------------------------------------------------
-# Tree-sitter CLI
-# ------------------------------------------------------------
+    curl -fsSL \
+        "https://github.com/tree-sitter/tree-sitter/releases/latest/download/tree-sitter-cli-linux-${TS_ARCH}.zip" \
+        -o "$TMP_DIR/tree-sitter.zip"
 
-echo "==> Installing Tree-sitter CLI"
+    mkdir -p "$TMP_DIR/tree-sitter"
 
-curl -fsSL \
-    "https://github.com/tree-sitter/tree-sitter/releases/latest/download/tree-sitter-cli-linux-${TS_ARCH}.zip" \
-    -o "$TMP_DIR/tree-sitter.zip"
+    unzip -q \
+        "$TMP_DIR/tree-sitter.zip" \
+        -d "$TMP_DIR/tree-sitter"
 
-mkdir -p "$TMP_DIR/tree-sitter"
+    cp \
+        "$TMP_DIR/tree-sitter/tree-sitter" \
+        "$BIN_DIR/tree-sitter"
 
-unzip -q \
-    "$TMP_DIR/tree-sitter.zip" \
-    -d "$TMP_DIR/tree-sitter"
+    chmod +x "$BIN_DIR/tree-sitter"
+}
 
-cp \
-    "$TMP_DIR/tree-sitter/tree-sitter" \
-    "$BIN_DIR/tree-sitter"
-
-chmod +x "$BIN_DIR/tree-sitter"
-
-# ------------------------------------------------------------
-# PATH
-# ------------------------------------------------------------
+install_neovim
+install_ripgrep
+install_fd
+install_tree_sitter
 
 export PATH="$BIN_DIR:$PATH"
-
-# ------------------------------------------------------------
-# Verify
-# ------------------------------------------------------------
 
 echo
 echo "========================================"
@@ -163,8 +151,6 @@ fd --version
 tree-sitter --version
 
 echo
-echo 'Make sure this is in ~/.zshrc:'
+echo 'Add this to ~/.zshrc if needed:'
 echo
 echo 'export PATH="$HOME/.local/bin:$PATH"'
-```
-
