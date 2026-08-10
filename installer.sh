@@ -79,7 +79,7 @@ install_ripgrep() {
     echo "    Version: $version"
 
     curl -fsSL \
-        "https://github.com/BurntSushi/ripgrep/releases/download/${tag}/ripgrep-${version}-${RG_ARCH}.tar.gz" \
+        "https://github.com/BurntSushi/ripgrep/releases/download/${tag}/ripgrep-${version}-x86_64-unknown-linux-musl.tar.gz" \
         -o "$TMP_DIR/rg.tar.gz"
 
     mkdir -p "$TMP_DIR/rg"
@@ -87,12 +87,14 @@ install_ripgrep() {
     tar -xzf "$TMP_DIR/rg.tar.gz" \
         -C "$TMP_DIR/rg"
 
-    cp \
-        "$TMP_DIR/rg/ripgrep-${version}-${RG_ARCH}/rg" \
-        "$BIN_DIR/rg"
+    find "$TMP_DIR/rg" \
+        -type f \
+        -name rg \
+        -exec cp {} "$BIN_DIR/rg" \;
 
     chmod +x "$BIN_DIR/rg"
 }
+
 
 install_fd() {
     echo "==> Installing fd"
@@ -106,7 +108,7 @@ install_fd() {
     echo "    Version: $version"
 
     curl -fsSL \
-        "https://github.com/sharkdp/fd/releases/download/${tag}/fd-v${version}-${FD_ARCH}.tar.gz" \
+        "https://github.com/sharkdp/fd/releases/download/${tag}/fd-v${version}-x86_64-unknown-linux-musl.tar.gz" \
         -o "$TMP_DIR/fd.tar.gz"
 
     mkdir -p "$TMP_DIR/fd"
@@ -114,32 +116,14 @@ install_fd() {
     tar -xzf "$TMP_DIR/fd.tar.gz" \
         -C "$TMP_DIR/fd"
 
-    cp \
-        "$TMP_DIR/fd/fd-v${version}-${FD_ARCH}/fd" \
-        "$BIN_DIR/fd"
+    find "$TMP_DIR/fd" \
+        -type f \
+        -name fd \
+        -exec cp {} "$BIN_DIR/fd" \;
 
     chmod +x "$BIN_DIR/fd"
 }
 
-install_tree_sitter() {
-    echo "==> Installing Tree-sitter CLI"
-
-    curl -fsSL \
-        "https://github.com/tree-sitter/tree-sitter/releases/latest/download/tree-sitter-cli-linux-${TS_ARCH}.zip" \
-        -o "$TMP_DIR/tree-sitter.zip"
-
-    mkdir -p "$TMP_DIR/tree-sitter"
-
-    unzip -q \
-        "$TMP_DIR/tree-sitter.zip" \
-        -d "$TMP_DIR/tree-sitter"
-
-    cp \
-        "$TMP_DIR/tree-sitter/tree-sitter" \
-        "$BIN_DIR/tree-sitter"
-
-    chmod +x "$BIN_DIR/tree-sitter"
-}
 
 has() {
     command -v "$1" >/dev/null 2>&1
@@ -148,7 +132,7 @@ has() {
 has nvim || install_neovim
 has nvim || install_ripgrep
 has nvim || install_fd
-# install_tree_sitter
+
 add_to_path() {
     local path_line='export PATH="$HOME/.local/bin:$PATH"'
 
