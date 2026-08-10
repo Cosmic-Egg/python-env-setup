@@ -44,8 +44,17 @@ latest_tag() {
 install_neovim() {
     echo "==> Installing Neovim"
 
+    case "$ARCH" in
+        x86_64)
+            NVIM_COMPAT_ARCH="x86_64"
+            ;;
+        aarch64|arm64)
+            NVIM_COMPAT_ARCH="arm64"
+            ;;
+    esac
+
     curl -fsSL \
-        "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-${NVIM_ARCH}.tar.gz" \
+        "https://github.com/neovim/neovim-releases/releases/latest/download/nvim-linux-${NVIM_COMPAT_ARCH}.tar.gz" \
         -o "$TMP_DIR/nvim.tar.gz"
 
     rm -rf "$APP_DIR/nvim"
