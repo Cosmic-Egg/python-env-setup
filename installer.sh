@@ -1,4 +1,3 @@
-```bash
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -241,4 +240,3 @@ echo
 echo "If this was your first install, open a new shell or run:"
 echo
 echo '  source ~/.bashrc'
-```
