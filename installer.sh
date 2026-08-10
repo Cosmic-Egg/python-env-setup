@@ -1,3 +1,4 @@
+```bash
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -21,7 +22,7 @@ case "$ARCH" in
 
     aarch64|arm64)
         NVIM_ARCH="arm64"
-        RG_ARCH="aarch64-unknown-linux-gnu"
+        RG_ARCH="aarch64-unknown-linux-musl"
         FD_ARCH="aarch64-unknown-linux-gnu"
         TS_ARCH="arm64"
         ;;
@@ -34,6 +35,18 @@ esac
 
 echo "Detected architecture: $ARCH"
 echo
+
+# ------------------------------------------------------------
+# Helper: get latest GitHub release tag
+# ------------------------------------------------------------
+
+latest_tag() {
+    curl -fsSLI \
+        -o /dev/null \
+        -w '%{url_effective}' \
+        "https://github.com/$1/releases/latest" |
+    sed 's#.*/##'
+}
 
 # ------------------------------------------------------------
 # Neovim
@@ -60,21 +73,13 @@ ln -sf "$APP_DIR/nvim/bin/nvim" "$BIN_DIR/nvim"
 
 echo "==> Installing ripgrep"
 
-RG_URL="$(
-    curl -fsSL \
-        https://api.github.com/repos/BurntSushi/ripgrep/releases/latest |
-    grep '"browser_download_url":' |
-    grep "${RG_ARCH}.tar.gz\"" |
-    cut -d '"' -f 4 |
-    head -n 1
-)"
+RG_TAG="$(latest_tag BurntSushi/ripgrep)"
+RG_VERSION="${RG_TAG#v}"
 
-if [ -z "$RG_URL" ]; then
-    echo "Could not find ripgrep release for $ARCH"
-    exit 1
-fi
+echo "    Latest version: $RG_VERSION"
 
-curl -fsSL "$RG_URL" \
+curl -fsSL \
+    "https://github.com/BurntSushi/ripgrep/releases/download/${RG_TAG}/ripgrep-${RG_VERSION}-${RG_ARCH}.tar.gz" \
     -o "$TMP_DIR/rg.tar.gz"
 
 mkdir -p "$TMP_DIR/rg"
@@ -82,10 +87,9 @@ mkdir -p "$TMP_DIR/rg"
 tar -xzf "$TMP_DIR/rg.tar.gz" \
     -C "$TMP_DIR/rg"
 
-find "$TMP_DIR/rg" \
-    -type f \
-    -name rg \
-    -exec cp {} "$BIN_DIR/rg" \;
+cp \
+    "$TMP_DIR/rg/ripgrep-${RG_VERSION}-${RG_ARCH}/rg" \
+    "$BIN_DIR/rg"
 
 chmod +x "$BIN_DIR/rg"
 
@@ -95,21 +99,13 @@ chmod +x "$BIN_DIR/rg"
 
 echo "==> Installing fd"
 
-FD_URL="$(
-    curl -fsSL \
-        https://api.github.com/repos/sharkdp/fd/releases/latest |
-    grep '"browser_download_url":' |
-    grep "${FD_ARCH}.tar.gz\"" |
-    cut -d '"' -f 4 |
-    head -n 1
-)"
+FD_TAG="$(latest_tag sharkdp/fd)"
+FD_VERSION="${FD_TAG#v}"
 
-if [ -z "$FD_URL" ]; then
-    echo "Could not find fd release for $ARCH"
-    exit 1
-fi
+echo "    Latest version: $FD_VERSION"
 
-curl -fsSL "$FD_URL" \
+curl -fsSL \
+    "https://github.com/sharkdp/fd/releases/download/${FD_TAG}/fd-v${FD_VERSION}-${FD_ARCH}.tar.gz" \
     -o "$TMP_DIR/fd.tar.gz"
 
 mkdir -p "$TMP_DIR/fd"
@@ -117,10 +113,9 @@ mkdir -p "$TMP_DIR/fd"
 tar -xzf "$TMP_DIR/fd.tar.gz" \
     -C "$TMP_DIR/fd"
 
-find "$TMP_DIR/fd" \
-    -type f \
-    -name fd \
-    -exec cp {} "$BIN_DIR/fd" \;
+cp \
+    "$TMP_DIR/fd/fd-v${FD_VERSION}-${FD_ARCH}/fd" \
+    "$BIN_DIR/fd"
 
 chmod +x "$BIN_DIR/fd"
 
@@ -130,38 +125,19 @@ chmod +x "$BIN_DIR/fd"
 
 echo "==> Installing Tree-sitter CLI"
 
-TS_URL="$(
-    curl -fsSL \
-        https://api.github.com/repos/tree-sitter/tree-sitter/releases/latest |
-    grep '"browser_download_url":' |
-    grep "tree-sitter-linux-${TS_ARCH}.zip\"" |
-    cut -d '"' -f 4 |
-    head -n 1
-)"
-
-if [ -z "$TS_URL" ]; then
-    echo "Could not find Tree-sitter release for $ARCH"
-    exit 1
-fi
-
-curl -fsSL "$TS_URL" \
+curl -fsSL \
+    "https://github.com/tree-sitter/tree-sitter/releases/latest/download/tree-sitter-cli-linux-${TS_ARCH}.zip" \
     -o "$TMP_DIR/tree-sitter.zip"
 
 mkdir -p "$TMP_DIR/tree-sitter"
 
-if command -v unzip >/dev/null 2>&1; then
-    unzip -q \
-        "$TMP_DIR/tree-sitter.zip" \
-        -d "$TMP_DIR/tree-sitter"
-else
-    echo "ERROR: unzip is required to install Tree-sitter."
-    exit 1
-fi
+unzip -q \
+    "$TMP_DIR/tree-sitter.zip" \
+    -d "$TMP_DIR/tree-sitter"
 
-find "$TMP_DIR/tree-sitter" \
-    -type f \
-    -name tree-sitter \
-    -exec cp {} "$BIN_DIR/tree-sitter" \;
+cp \
+    "$TMP_DIR/tree-sitter/tree-sitter" \
+    "$BIN_DIR/tree-sitter"
 
 chmod +x "$BIN_DIR/tree-sitter"
 
@@ -187,6 +163,8 @@ fd --version
 tree-sitter --version
 
 echo
-echo "Add this to ~/.zshrc if it isn't already there:"
+echo 'Make sure this is in ~/.zshrc:'
 echo
 echo 'export PATH="$HOME/.local/bin:$PATH"'
+```
+
