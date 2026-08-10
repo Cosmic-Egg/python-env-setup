@@ -144,7 +144,7 @@ install_tree_sitter() {
 install_neovim
 install_ripgrep
 install_fd
-install_tree_sitter
+# install_tree_sitter
 
 export PATH="$BIN_DIR:$PATH"
 
