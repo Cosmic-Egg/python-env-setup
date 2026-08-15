@@ -1,0 +1,34 @@
+inherits = "base16_terminal"
+
+"ui.menu" = { fg = "light-gray", bg = "black" }
+"ui.menu.selected" = { fg = "black", bg = "light-cyan" }
+
+"ui.text" = { fg = "light-gray" }
+"ui.text.inactive" = { fg = "gray" }
+"ui.text.focus" = { fg = "white" }
+
+"ui.window" = { fg = "light-cyan" }
+
+
+# [palette]
+# # Uno / blue family
+#  white = "#bfd9f7"
+#  lilac = "#4fdeae"
+#  lavender = "#5892d5"
+#  comet = "#7088a4"
+#  bossanova = "#305988"
+#  midnight = "#191e24"
+#  revolver = "#24303b"
+
+#  # Secondary / subdued colors
+#  silver = "#c3dfd6"
+#  sirocco = "#7088a4"
+#  mint = "#aff8e0"
+#  almond = "#2c9b76"
+#  chamois = "#6ba894"
+#  honey = "#4fdeae"
+
+#  # Diagnostics / emphasis
+#  apricot = "#6ba894"
+#  lightning = "#aff8e0"
+#  delta = "#5892d5"

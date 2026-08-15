@@ -1,0 +1,47 @@
+inherits = "default"
+
+"ui.background" = { bg = "bg" }
+"ui.text" = "fg"
+"ui.cursor" = { fg = "bg", bg = "accent" }
+"ui.cursorline.primary" = { bg = "guide" }
+"ui.selection" = { bg = "selection" }
+"ui.linenr" = "uno4"
+"ui.linenr.selected" = "uno2"
+
+"comment" = { fg = "uno4", modifiers = ["italic"] }
+"string" = "uno2"
+"constant" = "duo1"
+"constant.numeric" = "duo1"
+"variable" = "uno2"
+"variable.other.member" = "uno3"
+"function" = "duo1"
+"function.method" = "duo1"
+"type" = "duo1"
+"keyword" = "duo2"
+"keyword.control.import" = "duo2"
+"tag" = "uno1"
+"attribute" = "uno2"
+"operator" = "uno3"
+"punctuation" = "uno3"
+
+"diagnostic.error" = { underline = { color = "error", style = "curl" } }
+"diagnostic.warning" = { underline = { color = "warning", style = "curl" } }
+"diagnostic.info" = { underline = { color = "uno3", style = "curl" } }
+"diagnostic.hint" = { underline = { color = "duo2", style = "curl" } }
+
+[palette]
+bg = "#261D2F"
+fg = "#B888E7"
+accent = "#FF52E2"
+guide = "#3F304F"
+selection = "#453455"
+uno1 = "#EBD6FF"
+uno2 = "#B888E7"
+uno3 = "#8F5DC0"
+uno4 = "#705889"
+uno5 = "#4C4455"
+duo1 = "#FE34DC"
+duo2 = "#AE3299"
+duo3 = "#674260"
+error = "#E06666"
+warning = "#D6B45F"

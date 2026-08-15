@@ -1,0 +1,82 @@
+inherits = "default"
+
+"ui.background" = { bg = "a0" }
+"ui.text" = "b5"
+"ui.cursor" = { fg = "a0", bg = "d5" }
+"ui.cursorline.primary" = { bg = "a1" }
+"ui.selection" = { bg = "a3" }
+"ui.linenr" = "a5"
+"ui.linenr.selected" = "b5"
+
+# status line
+"ui.statusline" = { fg = "b5", bg = "a1" }
+"ui.statusline.inactive" = { fg = "a5", bg = "a0" }
+
+"ui.statusline.normal" = { fg = "a0", bg = "b5", modifiers = ["bold"] }
+"ui.statusline.insert" = { fg = "a0", bg = "d5", modifiers = ["bold"] }
+"ui.statusline.select" = { fg = "a0", bg = "c7", modifiers = ["bold"] }
+
+"ui.statusline.separator" = { fg = "a5", bg = "a1" }
+ 
+# bufferline
+"ui.bufferline" = { fg = "a5", bg = "a0" }
+"ui.bufferline.active" = { fg = "b7", bg = "a2", modifiers = ["bold"] }
+"ui.bufferline.background" = { bg = "a0" }
+
+"ui.popup" = { fg = "b5", bg = "a1" }
+"ui.popup.info" = { fg = "b5", bg = "a1" }
+
+"ui.help" = { fg = "b5", bg = "a1" }
+
+"ui.text.focus" = { fg = "b7", modifiers = ["bold"] }
+
+"comment" = { fg = "a5", modifiers = ["italic"] }
+"string" = "c7"
+"constant" = "d4"
+"constant.numeric" = "d2"
+"variable" = "b5"
+"variable.other.member" = "b3"
+"function" = "b7"
+"function.method" = "b7"
+"constructor" = "d5"
+"type" = "b6"
+"keyword" = "d3"
+"keyword.control.import" = "d3"
+"operator" = "c5"
+"punctuation" = "b3"
+"tag" = "b7"
+"attribute" = "b5"
+
+[palette]
+a0 = "#191E24"
+a1 = "#262D36"
+a2 = "#323C49"
+a3 = "#415162"
+a4 = "#556A82"
+a5 = "#7088A4"
+a6 = "#9AACC1"
+a7 = "#CCD5E1"
+b0 = "#182330"
+b1 = "#203246"
+b2 = "#284362"
+b3 = "#305988"
+b4 = "#3774B9"
+b5 = "#5892D5"
+b6 = "#87B4E8"
+b7 = "#BFD9F7"
+c0 = "#1C2623"
+c1 = "#283933"
+c2 = "#355047"
+c3 = "#446A5D"
+c4 = "#538876"
+c5 = "#6BA894"
+c6 = "#93C2B3"
+c7 = "#C3DFD6"
+d0 = "#18352B"
+d1 = "#1F5140"
+d2 = "#267359"
+d3 = "#2C9B76"
+d4 = "#2FCA97"
+d5 = "#4FDEAE"
+d6 = "#78EDC6"
+d7 = "#AFF8E0"
