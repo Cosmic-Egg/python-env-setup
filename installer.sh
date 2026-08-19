@@ -8,6 +8,9 @@ set -euo pipefail
 BIN_DIR="$HOME/.local/bin"
 OPT_DIR="$HOME/.local/opt"
 TMP_DIR="$(mktemp -d)"
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$REPO_DIR/.dotfiles"
+HELIX_CONFIG="$HOME/.config/helix"
 
 trap 'rm -rf "$TMP_DIR"' EXIT
 
@@ -74,6 +77,85 @@ add_to_path() {
     done
 
     export PATH="$BIN_DIR:$PATH"
+}
+
+# ------------------------------------------------------------
+# Helix
+# ------------------------------------------------------------
+install_helix() {
+    echo "==> Installing Helix"
+
+    local tag
+    local version
+    local helix_arch
+
+    tag="$(latest_tag helix-editor/helix)"
+    version="${tag#v}"
+
+    case "$ARCH" in
+        x86_64)
+            helix_arch="x86_64-linux"
+            ;;
+        aarch64|arm64)
+            helix_arch="aarch64-linux"
+            ;;
+        *)
+            echo "ERROR: Unsupported architecture for Helix: $ARCH"
+            exit 1
+            ;;
+    esac
+
+    echo "    Version: $version"
+
+    curl -fsSL \
+        "https://github.com/helix-editor/helix/releases/download/${tag}/helix-${version}-${helix_arch}.tar.xz" \
+        -o "$TMP_DIR/helix.tar.xz"
+
+    mkdir -p "$TMP_DIR/helix"
+
+    tar -xJf "$TMP_DIR/helix.tar.xz" \
+        -C "$TMP_DIR/helix"
+
+    local helix_dir
+    helix_dir="$(find "$TMP_DIR/helix" -mindepth 1 -maxdepth 1 -type d -print -quit)"
+
+    if [ -z "$helix_dir" ] || [ ! -x "$helix_dir/hx" ]; then
+        echo "ERROR: hx binary was not found in downloaded archive."
+        exit 1
+    fi
+
+    rm -rf "$OPT_DIR/helix"
+    mv "$helix_dir" "$OPT_DIR/helix"
+
+    ln -sfn "$OPT_DIR/helix/hx" "$BIN_DIR/hx"
+
+    echo "    Installed."
+}
+
+link_config() {
+    local source="$1"
+    local target="$2"
+
+    mkdir -p "$(dirname "$target")"
+
+    if [ -L "$target" ]; then
+        if [ "$(readlink "$target")" = "$source" ]; then
+            echo "==> Config already linked: $target"
+            return
+        fi
+
+        echo "==> Replacing existing symlink: $target"
+        rm "$target"
+    elif [ -e "$target" ]; then
+        echo "==> Existing config found: $target"
+        echo "    Moving it to: ${target}.backup"
+        mv "$target" "${target}.backup"
+    fi
+
+    ln -s "$source" "$target"
+
+    echo "==> Linked $target"
+    echo "    -> $source"
 }
 
 # ------------------------------------------------------------
@@ -267,10 +349,21 @@ else
     install_ty
 fi
 
+if has hx; then
+    echo "==> Helix already installed"
+else
+    install_helix
+fi
+
 # ------------------------------------------------------------
 # PATH
 # ------------------------------------------------------------
-
+if [ -d "$DOTFILES_DIR/helix" ]; then
+    link_config "$DOTFILES_DIR/helix" "$HELIX_CONFIG"
+else
+    echo "WARNING: Helix dotfiles not found:"
+    echo "    $DOTFILES_DIR/helix"
+fi
 add_to_path
 
 # ------------------------------------------------------------
