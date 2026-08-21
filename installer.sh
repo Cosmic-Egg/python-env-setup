@@ -11,6 +11,7 @@ TMP_DIR="$(mktemp -d)"
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$REPO_DIR/.dotfiles"
 HELIX_CONFIG="$HOME/.config/helix"
+NVIM_CONFIG="$HOME/.config/nvim"
 
 trap 'rm -rf "$TMP_DIR"' EXIT
 
@@ -316,7 +317,7 @@ else
     install_neovim
 fi
 
-install_nvim_config
+# install_nvim_config
 
 if has rg; then
     echo "==> ripgrep already installed"
@@ -364,7 +365,36 @@ else
     echo "WARNING: Helix dotfiles not found:"
     echo "    $DOTFILES_DIR/helix"
 fi
+
+if [ -d "$DOTFILES_DIR/nvim" ]; then
+    link_config "$DOTFILES_DIR/nvim" "$NVIM_CONFIG"
+else
+    echo "WARNING: Neovim dotfiles not found:"
+    echo "    $DOTFILES_DIR/nvim"
+fi
+
 add_to_path
+
+
+# ------------------------------------------------------------
+# Bashrc
+# ------------------------------------------------------------
+configure_truecolor() {
+    echo "==> Configuring true color support"
+
+    local line='export COLORTERM=truecolor'
+
+    if ! grep -qxF "$line" "$HOME/.bashrc"; then
+        echo "$line" >> "$HOME/.bashrc"
+        echo "    Added COLORTERM=truecolor to ~/.bashrc"
+    else
+        echo "    Already configured."
+    fi
+
+    export COLORTERM=truecolor
+}
+configure_truecolor
+
 
 # ------------------------------------------------------------
 # Verification
