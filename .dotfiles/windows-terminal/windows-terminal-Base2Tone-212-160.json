@@ -1,0 +1,23 @@
+"name": "Base2Tone"
+"foreground": "#b9d9fe",
+"background": "#242b33",
+"cursorColor": "#83fcd3",
+"selectionBackground": "#576575",
+
+"black": "#242b33",
+"red": "#a6b0ad",
+"green": "#68f3c5",
+"yellow": "#83fcd3",
+"blue": "#86befd",
+"purple": "#68f3c5",
+"cyan": "#cbd7d3",
+"white": "#b9d9fe",
+
+"brightBlack": "#788697",
+"brightRed": "#cbd7d3",
+"brightGreen": "#f9fbfa",
+"brightYellow": "#b2ffe6",
+"brightBlue": "#b9d9fe",
+"brightPurple": "#83fcd3",
+"brightCyan": "#ebf4ff",
+"brightWhite": "#ebf4ff"

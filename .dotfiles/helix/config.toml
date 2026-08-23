@@ -1,10 +1,12 @@
-theme = "test"
+theme = "horizon-dark"
+
 
 #---- Editor ----#
 [editor]
 popup-border = "all"
 bufferline = "multiple"
 color-modes = true
+# end-of-line-diagnostics = "hint"
 
 [editor.cursor-shape]
 insert = "bar"
@@ -12,22 +14,24 @@ insert = "bar"
 # [editor.whitespace]
 # render = "all"
 # or control each character
-[editor.whitespace.render]
-space = "none"
-tab = "all"
-nbsp = "none"
-nnbsp = "none"
-newline = "none"
-[editor.whitespace.characters]
-space = "·"
-nbsp = "⍽"
-nnbsp = "␣"
-tab = "→"
-newline = "⏎"
-tabpad = "·" # Tabs will look like "→···" (depending on tab width)
+# [editor.whitespace.render]
+# space = "none"
+# tab = "all"
+# nbsp = "all"
+# nnbsp = "none"
+# newline = "none"
+# [editor.whitespace.characters]
+# space = "·"
+# nbsp = "⍽"
+# nnbsp = "␣"
+# tab = "→"
+# newline = "⏎"
+# tabpad = "·" # Tabs will look like "→···" (depending on tab width)
 
 [editor.inline-diagnostics]
 cursor-line = "hint" # `disable`, `hint`, `info`, `warning`, `error`
+other-lines = "error"
+  
 
 #---- Keymaps ----#
 [keys.normal.m]
@@ -37,5 +41,5 @@ cursor-line = "hint" # `disable`, `hint`, `info`, `warning`, `error`
 "[" = '@f[;lmi['
 "{" = '@f{;lmi{'
 
-[keys.insert.j]
-j = "normal_mode"
+# [keys.insert.j]
+# j = "normal_mode"

@@ -1,8 +1,40 @@
-[language-server.biome]
-command = "biome"
-args = ["lsp-proxy"]
+# [language-server.biome]
+# command = "biome"
+# args = ["lsp-proxy"]
 
+# [[language]]
+# name = "json"
+# language-servers = ["biome"]
+# auto-format = true
+
+# --- Ty and Ruff --- #
+# [[language]]
+# name = "python"
+# language-servers = ["ty", "ruff"]
+# auto-format = true
+
+# [language-server.ty]
+# command = "ty"
+# args = ["server"]
+
+# [language-server.ruff]
+# command = "ruff"
+# args = ["server"]
+
+# --- Basedpyright and Ruff --- #
 [[language]]
-name = "json"
-language-servers = ["biome"]
+name = "python"
+language-servers = ["basedpyright", "ruff"]
 auto-format = true
+formatter = { command = "ruff", args = ["format", "-"] }
+
+[language-server.basedpyright]
+command = "basedpyright-langserver"
+args = ["--stdio"]
+
+[language-server.basedpyright.config]
+basedpyright.disableOrganizeImports = true
+
+[language-server.ruff]
+command = "ruff"
+args = ["server"] 
