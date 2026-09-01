@@ -3,7 +3,6 @@ require("options")
 require("keymaps")
 require("lsp")
 require("mini")
-require("flash-config")
 require("theme")
 
 -- vim.pack.add {'https://github.com/neovim/nvim-lspconfig'}
