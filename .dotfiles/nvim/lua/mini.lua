@@ -22,7 +22,7 @@ require("mini.extra").setup()
 
 require("mini.tabline").setup()
 
-require("mini.jump").setup()
+-- require("mini.jump").setup()
 
 local clue = require("mini.clue")
 

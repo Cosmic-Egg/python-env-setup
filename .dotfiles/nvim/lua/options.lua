@@ -22,7 +22,7 @@ opt.incsearch = true
 -- UI
 opt.termguicolors = true
 opt.signcolumn = "yes"
-opt.cursorline = true
+-- opt.cursorline = true
 opt.scrolloff = 8
 opt.sidescrolloff = 8
 

@@ -20,8 +20,8 @@ require("everforest").setup({
 -- require("mini-base16")
 
 
-vim.opt.cursorline = true
-vim.opt.cursorlineopt = "line"
+-- vim.opt.cursorline = true
+-- vim.opt.cursorlineopt = "line"
 vim.opt.winborder = "rounded"
 -- require("colors").setup("sea")
 vim.cmd([[colorscheme everforest]])
