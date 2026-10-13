@@ -4,6 +4,10 @@
       "rev": "09944b3120451d2881dc8cfb13c85c11949f477d",
       "src": "https://github.com/RRethy/base16-nvim"
     },
+    "everforest": {
+      "rev": "85a86eb62409e3ec88713bff3d1b9d7374e112e4",
+      "src": "https://github.com/sainnhe/everforest"
+    },
     "everforest-nvim": {
       "rev": "a0e9edc57379e8feafc6ba207c26dbb12fc1b6d8",
       "src": "https://github.com/neanias/everforest-nvim"
@@ -43,6 +47,10 @@
     "todo-comments.nvim": {
       "rev": "31e3c38ce9b29781e4422fc0322eb0a21f4e8668",
       "src": "https://github.com/folke/todo-comments.nvim"
+    },
+    "tokyonight.nvim": {
+      "rev": "cdc07ac78467a233fd62c493de29a17e0cf2b2b6",
+      "src": "https://github.com/folke/tokyonight.nvim"
     },
     "vim-fugitive": {
       "rev": "3b753cf8c6a4dcde6edee8827d464ba9b8c4a6f0",

@@ -14,7 +14,9 @@ option.signcolumn = 'yes'
 option.tabstop = 4
 option.shiftwidth = 4
 vim.cmd.colorscheme('catppuccin')
-vim.api.nvim_set_hl(0, 'NormalFloat', { link = 'Normal' })
+-- vim.api.nvim_set_hl(0, 'NormalFloat', { link = 'Normal' })
+vim.api.nvim_set_hl(0, 'NormalFloat', { bg = '#302b40' })
+vim.api.nvim_set_hl(0, 'FloatBorder', { fg = '#8b7bb5', bg = '#302b40' })
 option.winborder = 'rounded'
 -- vim.api.nvim_set_hl(0, "Normal", { bg = "NONE" })
 -- vim.api.nvim_set_hl(0, "NormalNC", { bg = "NONE" })
@@ -35,11 +37,20 @@ keymap.set("n", "ge", "G", {desc = "Go to end of file",})
 keymap.set("n", "<leader>e", vim.diagnostic.open_float, {desc = "Show diagnostic",})
 keymap.set('n', '<leader>k', vim.lsp.buf.hover, { desc = 'LSP hover documentation' })
 
-vim.keymap.set('n', '<leader>sf', function() require('fzf-lua').files() end, { desc = 'Find files' })
-vim.keymap.set('n', '<leader>sw', function() require('fzf-lua').live_grep() end, { desc = 'Live grep' })
-vim.keymap.set('n', '<leader>sb', function() require('fzf-lua').buffers() end, { desc = 'Find buffers' })
-vim.keymap.set('n', 'grr', function() require('fzf-lua').lsp_references() end, { desc = 'LSP references' })
-vim.keymap.set('n', 'grd', function() require('fzf-lua').lsp_definitions() end, { desc = 'LSP definitions' })
+keymap.set('n', '<leader>ff', function() require('fzf-lua').files() end, { desc = 'Find files' })
+keymap.set('n', '<leader>fg', function() require('fzf-lua').live_grep() end, { desc = 'Live grep' })
+keymap.set('n', '<leader>fb', function() require('fzf-lua').buffers() end, { desc = 'Find buffers' })
+keymap.set('n', '<leader>fh', function() require('fzf-lua').helptags() end, { desc = 'Find help' })
+keymap.set('n', '<leader>fk', function() require('fzf-lua').keymaps() end, { desc = 'Find keymaps' })
+keymap.set('n', '<leader>fc', function() require('fzf-lua').commands() end, { desc = 'Find commands' })
+keymap.set('n', '<leader>fd', function() require('fzf-lua').diagnostics_document() end, { desc = 'Diagnostics' })
+keymap.set('n', '<leader>fw', function() require('fzf-lua').grep_cword() end, { desc = 'Search word' })
+keymap.set('n', '<leader>fs', function() require('fzf-lua').lsp_document_symbols() end, { desc = 'Search symbols' })
+-- keymap.set('n', '<leader>sf', function() require('fzf-lua').files() end, { desc = 'Find files' })
+-- keymap.set('n', '<leader>sw', function() require('fzf-lua').live_grep() end, { desc = 'Live grep' })
+-- keymap.set('n', '<leader>sb', function() require('fzf-lua').buffers() end, { desc = 'Find buffers' })
+keymap.set('n', 'grr', function() require('fzf-lua').lsp_references() end, { desc = 'LSP references' })
+keymap.set('n', 'grd', function() require('fzf-lua').lsp_definitions() end, { desc = 'LSP definitions' })
 
 -- keymap.set("n", "<leader>sf", function() MiniPick.builtin.files() end, { desc = "Mini File Picker" })
 -- keymap.set("n", "<leader>sw", function() MiniPick.builtin.grep({pattern = vim.fn.expand("<cword>")  }) end, { desc = "Grep word/Search word" })
@@ -51,17 +62,22 @@ vim.keymap.set('n', 'grd', function() require('fzf-lua').lsp_definitions() end, 
 -- keymap.set("n", "<leader>sk", function() MiniExtra.pickers.keymaps() end, { desc = 'Search keymaps' })
 -- keymap.set("n", "<leader>sb", function() MiniPick.builtin.buffers() end, { desc = "Mini Buffer Picker" })
 --
--- vim.keymap.set('n', 'grr', function() MiniExtra.pickers.lsp({ scope = 'references' }) end, { desc = 'LSP references' })
--- vim.keymap.set('n', 'grd', function() MiniExtra.pickers.lsp({ scope = 'definition' }) end, { desc = 'LSP definitions' })
+-- keymap.set('n', 'grr', function() MiniExtra.pickers.lsp({ scope = 'references' }) end, { desc = 'LSP references' })
+-- keymap.set('n', 'grd', function() MiniExtra.pickers.lsp({ scope = 'definition' }) end, { desc = 'LSP definitions' })
 --
 -- LSP --
 vim.pack.add{
   { src = 'https://github.com/neovim/nvim-lspconfig' },
 }
 lsp.enable('ruff')
-lsp.enable('ty')
+-- lsp.enable('ty')
+lsp.enable('pyrefly')
 
 -- Autocommands --
+
+-- ColorSchemes --
+vim.pack.add({ 'https://github.com/folke/tokyonight.nvim' })
+vim.pack.add({ 'https://github.com/sainnhe/everforest' })
 
 -- Plugins --
 vim.pack.add({ 'https://github.com/folke/todo-comments.nvim' })
