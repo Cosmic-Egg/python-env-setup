@@ -259,6 +259,51 @@ install_fd() {
 
     echo "    Installed."
 }
+
+install_fzf() {
+    if command -v fzf &>/dev/null; then
+        echo "fzf already installed: $(fzf --version)"
+        return
+    fi
+
+    echo "Installing fzf..."
+
+    local version="0.65.2"
+    local arch
+    arch="$(uname -m)"
+
+    case "$arch" in
+        x86_64)  arch="amd64" ;;
+        aarch64) arch="arm64" ;;
+        *)
+            echo "Unsupported architecture: $arch"
+            return 1
+            ;;
+    esac
+
+    local tmp_dir
+    tmp_dir="$(mktemp -d)"
+
+    curl -fsSL \
+        "https://github.com/junegunn/fzf/releases/download/v${version}/fzf-${version}-linux_${arch}.tar.gz" \
+        -o "$tmp_dir/fzf.tar.gz" || {
+            rm -rf "$tmp_dir"
+            return 1
+        }
+
+    tar -xzf "$tmp_dir/fzf.tar.gz" -C "$tmp_dir" || {
+        rm -rf "$tmp_dir"
+        return 1
+    }
+
+    mkdir -p "$HOME/.local/bin"
+    install -m 755 "$tmp_dir/fzf" "$HOME/.local/bin/fzf"
+
+    rm -rf "$tmp_dir"
+
+    echo "fzf installed successfully."
+}
+
 install_nvim_config() {
     echo "==> Installing Neovim configuration"
 
@@ -331,6 +376,12 @@ else
     install_fd
 fi
 
+if has fzf; then
+	echo "==> fzf already installed"
+else
+	install_fzf
+fi
+
 if has uv; then
     echo "==> uv already installed"
 else
@@ -395,6 +446,9 @@ configure_truecolor() {
 }
 configure_truecolor
 
+if ! grep -q 'fzf --bash' "$HOME/.bashrc"; then
+    echo 'eval "$(fzf --bash)"' >> "$HOME/.bashrc"
+fi
 
 # ------------------------------------------------------------
 # Verification
