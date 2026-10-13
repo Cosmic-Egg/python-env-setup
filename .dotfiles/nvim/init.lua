@@ -88,6 +88,7 @@ require('fzf-lua').setup(
 	{
     actions = {
         files = {
+			true,
             ['ctrl-s'] = require('fzf-lua.actions').file_vsplit,
         },
     },
